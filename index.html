@@ -3,176 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZOOKA Goals Pro | v1.3</title>
+    <title>ZOOKA Goals 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary: #FFD700; --dark: #000000; --card: #111111;
-            --accent: #FFC107; --success: #00ff88; --danger: #ff4444;
+            --gold: #FFD700; --dark-bg: #0a0a0a; --card-bg: #161616;
+            --text: #ffffff; --safe: #2ecc71; --warn: #e74c3c; --accent: #3498db;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: white; margin: 0; padding-bottom: 80px; overflow-x: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg); color: var(--text);
+            margin: 0; padding-bottom: 70px; overflow-x: hidden;
+        }
 
-        /* الهيدر واللوجو */
-        .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .logo-box { display: flex; align-items: center; gap: 10px; }
-        .logo-icon { background: var(--primary); color: black; padding: 5px 12px; border-radius: 8px; font-weight: 900; font-size: 20px; }
+        /* القائمة الجانبية */
+        .sidebar {
+            position: fixed; top: 0; right: -100%; width: 280px; height: 100%;
+            background: var(--card-bg); z-index: 4000; transition: 0.4s;
+            padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.5); overflow-y: auto;
+        }
+        .sidebar.active { right: 0; }
+        .sidebar h3 { color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .menu-item { padding: 12px 0; border-bottom: 1px solid #222; cursor: pointer; display: flex; align-items: center; gap: 10px; }
 
-        /* العداد التنازلي */
-        .countdown-box { margin: 15px; background: #050505; border: 1px solid #333; text-align: center; padding: 15px; border-radius: 15px; }
-        #countdown { color: var(--primary); font-size: 22px; font-weight: bold; }
+        /* الهيدر */
+        .header {
+            background: var(--card-bg); padding: 15px; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid var(--gold);
+        }
+        .logo { font-weight: 900; font-size: 20px; color: var(--gold); }
 
-        /* الكروت والإحصائيات */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; }
-        .card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #222; }
+        /* البانر والمعلومات */
+        .banner { background: linear-gradient(45deg, #1a1a1a, #000); padding: 20px; text-align: center; border-radius: 0 0 20px 20px; margin-bottom: 15px; }
+        .lvl-badge { background: var(--gold); color: #000; padding: 2px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; }
 
-        /* --- تصميم الآلة الحاسبة العصرية --- */
-        #calc-modal {
+        /* كروت الميزانية */
+        .stat-card { background: var(--card-bg); margin: 10px 15px; padding: 15px; border-radius: 15px; border: 1px solid #333; }
+        .money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .money-val { font-size: 18px; font-weight: bold; color: var(--safe); }
+
+        /* خريطة الطريق */
+        .roadmap { padding: 15px; margin: 15px; background: #111; border-radius: 15px; position: relative; }
+        .progress-container { height: 10px; background: #333; border-radius: 5px; margin: 15px 0; overflow: hidden; }
+        #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: 1s; box-shadow: 0 0 10px var(--gold); }
+
+        /* الأهداف */
+        .month-section { padding: 15px; }
+        .goal-card { background: var(--card-bg); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-right: 4px solid var(--accent); }
+        .btn-group { display: flex; gap: 5px; margin-top: 10px; }
+        button { flex: 1; padding: 10px 5px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 11px; }
+        .btn-done { background: var(--safe); color: white; }
+        .btn-fail { background: var(--warn); color: white; }
+        .btn-delay { background: var(--gold); color: black; }
+
+        /* الآلة الحاسبة */
+        #calc-ui {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 3000;
-            display: none; flex-direction: column; justify-content: flex-end;
+            background: rgba(0,0,0,0.9); z-index: 5000; display: none; flex-direction: column; justify-content: flex-end;
         }
-        .calc-container { background: #000; padding: 20px; border-radius: 30px 30px 0 0; border-top: 2px solid var(--primary); }
-        .calc-display {
-            padding: 20px; text-align: left; font-size: 40px; color: white;
-            min-height: 60px; word-wrap: break-word; direction: ltr;
-        }
-        .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .calc-btn {
-            height: 70px; border-radius: 50%; border: none; font-size: 22px; font-weight: bold;
-            cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
-        }
-        .btn-num { background: #333; color: white; }
-        .btn-op { background: var(--primary); color: black; }
-        .btn-special { background: #a5a5a5; color: black; }
-        .calc-btn:active { transform: scale(0.9); opacity: 0.7; }
+        .calc-body { background: #000; padding: 20px; border-radius: 20px 20px 0 0; }
+        .calc-screen { font-size: 40px; text-align: left; padding: 20px; color: white; direction: ltr; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .c-btn { height: 60px; background: #222; color: white; border-radius: 10px; font-size: 20px; display: flex; align-items: center; justify-content: center; }
 
-        /* بوت زوكا المطور */
-        .bot-fab { position: fixed; bottom: 85px; right: 20px; width: 65px; height: 65px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: black; z-index: 1999; }
-        #chat-box { position: fixed; bottom: 85px; left: 10px; right: 10px; height: 400px; background: var(--card); border-radius: 20px; display: none; flex-direction: column; z-index: 2000; border: 1px solid var(--primary); }
-        #chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        /* البوت الذكي */
+        .bot-bubble { position: fixed; bottom: 80px; left: 20px; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 25px; z-index: 3000; box-shadow: 0 5px 15px rgba(255,215,0,0.4); }
+        #chat-window { position: fixed; bottom: 150px; left: 20px; right: 20px; height: 350px; background: var(--card-bg); border-radius: 15px; display: none; flex-direction: column; border: 1px solid var(--gold); z-index: 3000; }
+        #messages { flex: 1; padding: 10px; overflow-y: auto; font-size: 13px; }
 
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; }
+        /* المودال للخيارات */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 6000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); padding: 20px; border-radius: 15px; width: 90%; text-align: center; }
+
+        .nav-bottom { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); display: flex; justify-content: space-around; padding: 15px; border-top: 1px solid #333; z-index: 1000; }
     </style>
 </head>
 <body>
 
+    <div class="sidebar" id="sidebar">
+        <div style="text-align: left;" onclick="toggleSidebar()"><i class="fas fa-times"></i></div>
+        <h3>📋 القائمة الرئيسية</h3>
+        <div class="menu-item"><i class="fas fa-bullseye"></i> الأهداف</div>
+        <div class="menu-item"><i class="fas fa-file-invoice-dollar"></i> المديونية: <span id="side-debt">30000</span>ج</div>
+        <hr>
+        <h3>⚙️ الإعدادات</h3>
+        <div class="menu-item" onclick="showSubMenu('privacy')"><i class="fas fa-lock"></i> الخصوصية</div>
+        <div id="privacy-sub" style="display:none; padding-right: 20px; font-size: 13px;">
+            <p>📧 البريد: zooka@example.com</p>
+            <p>📱 الهاتف: 01xxxxxxxxx</p>
+            <p>🔑 كلمة الزوكش: ****</p>
+        </div>
+        <div class="menu-item" onclick="showBigDream()"><i class="fas fa-star"></i> الحلم الكبير</div>
+        <div class="menu-item" onclick="askNotificationPermission()"><i class="fas fa-bell"></i> الإشعارات</div>
+        <div class="menu-item" onclick="resetApp()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</div>
+    </div>
+
     <div class="header">
-        <div class="logo-box">
-            <div class="logo-icon">Z</div>
-            <span>ZOOKA <span style="color:var(--primary)">GOALS</span></span>
-        </div>
-        <i class="fas fa-calculator" style="color:var(--primary); font-size: 24px;" onclick="toggleCalc()"></i>
+        <i class="fas fa-bars" onclick="toggleSidebar()"></i>
+        <div class="logo">ZOOKA GOALS</div>
+        <i class="fas fa-calculator" onclick="toggleCalc()"></i>
     </div>
 
-    <div class="countdown-box">
-        <small style="opacity: 0.6;">الوقت المتبقي لـ 2026</small>
-        <div id="countdown">جاري الحساب...</div>
-    </div>
-
-    <div class="stat-grid">
-        <div class="card">
-            <small style="opacity:0.6">الراتب الأسبوعي</small>
-            <h3 style="color:var(--success)">3,500 ج</h3>
-        </div>
-        <div class="card" style="border-color: var(--danger);">
-            <small style="opacity:0.6">الدين المتبقي</small>
-            <h3 id="debt-val" style="color:var(--danger)">30,000 ج</h3>
-        </div>
-    </div>
-
-    <div id="calc-modal">
-        <div style="text-align: center; padding: 10px;" onclick="toggleCalc()">
-            <i class="fas fa-chevron-down" style="color: #666; font-size: 24px;"></i>
-        </div>
-        <div class="calc-display" id="display">0</div>
-        <div class="calc-container">
-            <div class="calc-buttons">
-                <button class="calc-btn btn-special" onclick="clearCalc()">AC</button>
-                <button class="calc-btn btn-special" onclick="delCalc()">DEL</button>
-                <button class="calc-btn btn-op" onclick="appendOp('%')">%</button>
-                <button class="calc-btn btn-op" onclick="appendOp('/')">÷</button>
-                
-                <button class="calc-btn btn-num" onclick="appendNum('7')">7</button>
-                <button class="calc-btn btn-num" onclick="appendNum('8')">8</button>
-                <button class="calc-btn btn-num" onclick="appendNum('9')">9</button>
-                <button class="calc-btn btn-op" onclick="appendOp('*')">×</button>
-                
-                <button class="calc-btn btn-num" onclick="appendNum('4')">4</button>
-                <button class="calc-btn btn-num" onclick="appendNum('5')">5</button>
-                <button class="calc-btn btn-num" onclick="appendNum('6')">6</button>
-                <button class="calc-btn btn-op" onclick="appendOp('-')">-</button>
-                
-                <button class="calc-btn btn-num" onclick="appendNum('1')">1</button>
-                <button class="calc-btn btn-num" onclick="appendNum('2')">2</button>
-                <button class="calc-btn btn-num" onclick="appendNum('3')">3</button>
-                <button class="calc-btn btn-op" onclick="appendOp('+')">+</button>
-                
-                <button class="calc-btn btn-num" style="grid-column: span 2; border-radius: 40px;" onclick="appendNum('0')">0</button>
-                <button class="calc-btn btn-num" onclick="appendNum('.')">.</button>
-                <button class="calc-btn btn-op" onclick="calculate()">=</button>
+    <div class="banner">
+        <span class="lvl-badge" id="lvl-display">المستوى: مكافح 1 🔥</span>
+        <h2 style="margin: 10px 0;">هدف 2026: <span style="color:var(--gold)">500,000ج</span></h2>
+        <div class="roadmap">
+            <small>خريطة الإنجاز (V1)</small>
+            <div class="progress-container"><div id="progress-bar"></div></div>
+            <div style="display: flex; justify-content: space-between; font-size: 10px;">
+                <span>بداية 🚀</span><span>لاب توب 💻</span><span>تليفون 📱</span><span>500K 👑</span>
             </div>
         </div>
     </div>
 
-    <div id="chat-box">
-        <div style="background:var(--primary); color:black; padding:12px; font-weight:bold;">مساعد زوكا الذكي</div>
-        <div id="chat-messages"></div>
+    <div class="stat-card">
+        <h4 style="margin:0 0 10px 0; border-bottom:1px solid #333;">📊 ميزانية الأسبوع (شهر 1)</h4>
+        <div class="money-grid">
+            <div><small>الراتب</small><div class="money-val">3500ج</div></div>
+            <div><small>الدين الكلي</small><div class="money-val" style="color:var(--warn)" id="main-debt">30,000ج</div></div>
+        </div>
+        <div style="margin-top:10px; font-size: 12px; display: grid; grid-template-columns: 1fr 1fr; gap:5px;">
+            <div>👤 شخصي: 700ج</div>
+            <div>⛽ بنزين: 700ج</div>
+            <div>🛠 صيانة: 300ج</div>
+            <div>💸 دين أسبوعي: 1500ج</div>
+        </div>
     </div>
-    <div class="bot-fab" onclick="toggleChat()"><i class="fas fa-robot"></i></div>
 
-    <nav class="nav-bar">
-        <div style="color:var(--primary)"><i class="fas fa-home"></i></div>
-        <div style="opacity:0.5"><i class="fas fa-chart-pie"></i></div>
-        <div style="opacity:0.5"><i class="fas fa-user-cog"></i></div>
+    <div id="bonus-area" class="stat-card" style="background: linear-gradient(45deg, #1a1a00, #000); border-color: var(--gold);">
+        <i class="fas fa-gift" style="color:var(--gold)"></i> <b>بونص الأسبوع:</b> 
+        <span id="bonus-text">حط 300ج على جنب الأسبوع ده! 💰</span>
+    </div>
+
+    <div id="goals-list" class="month-section">
+        </div>
+
+    <div id="calc-ui">
+        <div class="calc-screen" id="c-screen">0</div>
+        <div class="calc-body">
+            <div class="calc-grid" id="c-btns">
+                </div>
+            <button onclick="toggleCalc()" style="width:100%; margin-top:10px; background:#444">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="delay-modal" class="modal">
+        <div class="modal-content">
+            <h3>⏳ خيارات التأجيل</h3>
+            <p>متاح لك تأجيل واحد فقط أو ترحيل 50%</p>
+            <button class="btn-delay" style="width:100%; margin:5px 0;" onclick="confirmDelay('goal')">1️⃣ تأجيل الهدف للشهر القادم</button>
+            <button class="btn-delay" style="width:100%; margin:5px 0;" onclick="confirmDelay('debt')">2️⃣ ترحيل 50% من مديونية الأسبوع</button>
+            <button onclick="closeModal()" style="background:#444; color:white; width:100%; margin-top:10px;">إلغاء</button>
+        </div>
+    </div>
+
+    <div id="chat-window">
+        <div style="background:var(--gold); color:black; padding:10px; font-weight:bold;">🤖 زوكا بوت الذكي</div>
+        <div id="messages"></div>
+        <div style="padding:5px; display:flex;">
+            <input type="text" id="bot-input" placeholder="اسأل زوكا..." style="flex:1; padding:8px; border:none; background:#222; color:white;">
+            <button onclick="askBot()" style="width:40px; background:var(--gold); flex:none;"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <div class="bot-bubble" onclick="toggleChat()">🤖</div>
+
+    <nav class="nav-bottom">
+        <i class="fas fa-home" style="color:var(--gold)"></i>
+        <i class="fas fa-calendar-alt" onclick="alert('اليوم: ' + new Date().toLocaleDateString('ar-EG'))"></i>
+        <i class="fas fa-chart-line"></i>
+        <i class="fas fa-cog" onclick="toggleSidebar()"></i>
     </nav>
 
     <script>
-        let state = JSON.parse(localStorage.getItem('zooka_pro_v2')) || { debt: 30000 };
-        function save() { document.getElementById('debt-val').innerText = state.debt.toLocaleString() + " ج"; }
+        // --- البيانات الأساسية ---
+        const config = {
+            monthlySalary: 14000,
+            weeklySalary: 3500,
+            initialDebt: 30000,
+            months: [
+                { id: 1, name: "شهر 1", goal: "سداد مديونية + تطوير معدات أونلاين", cost: 0 },
+                { id: 2, name: "شهر 2", goal: "شراء لابتوب لينوفو", cost: 15000 },
+                { id: 3, name: "شهر 3", goal: "طقمين خروج وساعة شيك", cost: 3000 },
+                { id: 4, name: "شهر 4", goal: "تليفون جديد", cost: 10000 },
+                { id: 5, name: "شهر 5", goal: "سداد جزء أكبر من الدين", cost: 0 },
+                { id: 6, name: "شهر 6", goal: "ايربودز وباور بانك", cost: 2500 },
+                { id: 7, name: "شهر 7", goal: "تمويل إعلانات وتكبير بيزنيس", cost: 5000 },
+                { id: 8, name: "شهر 8", goal: "التقديم على شقة", cost: 20000 },
+                { id: 9, name: "شهر 9", goal: "تحويل البيزنيس لمكتب دليفري", cost: 10000 },
+                { id: 10, name: "شهر 10", goal: "تجهيز السنترال", cost: 15000 },
+                { id: 11, name: "شهر 11", goal: "تجهيزات المطعم والكافيه", cost: 20000 },
+                { id: 12, name: "شهر 12", goal: "جرد سنوي وتحقيق الـ 500 ألف", cost: 0 }
+            ]
+        };
 
-        // منطق العداد التنازلي
-        function updateCountdown() {
-            const diff = new Date("January 1, 2026").getTime() - new Date().getTime();
-            document.getElementById('countdown').innerText = Math.floor(diff / (1000 * 60 * 60 * 24)) + " يوم متبقي";
+        let userData = JSON.parse(localStorage.getItem('zooka_v3')) || {
+            currentDebt: 30000,
+            xp: 0,
+            completedGoals: [],
+            delaysUsedInMonth: 0,
+            level: 1
+        };
+
+        // --- نظام الحسابات ---
+        function updateUI() {
+            document.getElementById('main-debt').innerText = userData.currentDebt.toLocaleString() + "ج";
+            document.getElementById('side-debt').innerText = userData.currentDebt.toLocaleString();
+            document.getElementById('lvl-display').innerText = `المستوى: ${getLevelName(userData.xp)}`;
+            
+            let progress = ((config.initialDebt - userData.currentDebt) / config.initialDebt) * 50; 
+            document.getElementById('progress-bar').style.width = (progress + (userData.completedGoals.length * 4)) + "%";
+            
+            renderGoals();
+            localStorage.setItem('zooka_v3', JSON.stringify(userData));
         }
-        setInterval(updateCountdown, 1000);
 
-        // --- منطق الآلة الحاسبة ---
-        let currentInput = "0";
-        const display = document.getElementById('display');
+        function getLevelName(xp) {
+            if (xp < 100) return "مكافح 🔥";
+            if (xp < 300) return "طموح 🚀";
+            if (xp < 600) return "وحش الميزانية 🦍";
+            return "أسطوري 👑";
+        }
 
+        function renderGoals() {
+            const container = document.getElementById('goals-list');
+            container.innerHTML = `<h3>🎯 خطة الأهداف</h3>`;
+            config.months.forEach(m => {
+                const isDone = userData.completedGoals.includes(m.id);
+                container.innerHTML += `
+                    <div class="goal-card" style="opacity: ${isDone ? 0.6 : 1}">
+                        <b>${m.name}: ${m.goal}</b>
+                        <div style="font-size:11px; color:var(--gold)">التكلفة المتوقعة: ${m.cost}ج</div>
+                        ${!isDone ? `
+                        <div class="btn-group">
+                            <button class="btn-done" onclick="finishGoal(${m.id})">تمت بنجاح ✅</button>
+                            <button class="btn-fail" onclick="failGoal()">لم أستطع ❌</button>
+                            <button class="btn-delay" onclick="openDelayModal(${m.id})">تأجيل ⏳</button>
+                        </div>` : `<div style="color:var(--safe); margin-top:5px;">إنجاز عظيم! ✨</div>`}
+                    </div>
+                `;
+            });
+        }
+
+        // --- الأزرار والتفاعلات ---
+        function finishGoal(id) {
+            userData.completedGoals.push(id);
+            userData.xp += 50;
+            if(id === 1) userData.currentDebt -= 6000; // مثال لسداد شهر
+            updateUI();
+            addBotMsg("🤖 الله ينور يا زوكش! خطوة جديدة ناحية الـ 500 ألف!");
+        }
+
+        let selectedGoalId = null;
+        function openDelayModal(id) {
+            selectedGoalId = id;
+            document.getElementById('delay-modal').style.display = 'flex';
+        }
+
+        function confirmDelay(type) {
+            if (userData.delaysUsedInMonth >= 1) {
+                alert("ليك تأجيل واحد بس في الشهر يا بطل! ركز.");
+                return;
+            }
+            if (type === 'debt') {
+                userData.currentDebt += 750;
+                addBotMsg("⚠️ تم ترحيل 750ج. الدين زاد، شد حيلك الأسبوع الجاي!");
+            } else {
+                addBotMsg("⏳ تم تأجيل الهدف. متخليش الحلم يهرب منك!");
+            }
+            userData.delaysUsedInMonth++;
+            closeModal();
+            updateUI();
+        }
+
+        function closeModal() { document.getElementById('delay-modal').style.display = 'none'; }
+
+        // --- الآلة الحاسبة ---
+        let cExp = "";
         function toggleCalc() {
-            const modal = document.getElementById('calc-modal');
-            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+            const ui = document.getElementById('calc-ui');
+            ui.style.display = ui.style.display === 'flex' ? 'none' : 'flex';
+            if(ui.style.display === 'flex') renderCalc();
+        }
+        function renderCalc() {
+            const btns = ["7","8","9","/","4","5","6","*","1","2","3","-","0",".","=","+ ","C"];
+            const grid = document.getElementById('c-btns');
+            grid.innerHTML = btns.map(b => `<div class="c-btn" onclick="pressCalc('${b}')">${b}</div>`).join('');
+        }
+        function pressCalc(v) {
+            if(v === "=") { try { cExp = eval(cExp); } catch { cExp = "Error"; } }
+            else if(v === "C") cExp = "";
+            else cExp += v;
+            document.getElementById('c-screen').innerText = cExp || "0";
         }
 
-        function appendNum(num) {
-            if (currentInput === "0") currentInput = num;
-            else currentInput += num;
-            updateDisplay();
-        }
-
-        function appendOp(op) {
-            currentInput += op;
-            updateDisplay();
-        }
-
-        function clearCalc() { currentInput = "0"; updateDisplay(); }
-        function delCalc() { currentInput = currentInput.slice(0, -1); if(!currentInput) currentInput="0"; updateDisplay(); }
-        function updateDisplay() { display.innerText = currentInput; }
-
-        function calculate() {
-            try { currentInput = eval(currentInput).toString(); updateDisplay(); } 
-            catch { display.innerText = "Error"; currentInput = "0"; }
-        }
-
+        // --- البوت الذكي ---
         function toggleChat() {
-            const box = document.getElementById('chat-box');
-            box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+            const w = document.getElementById('chat-window');
+            w.style.display = w.style.display === 'flex' ? 'none' : 'flex';
         }
+        function askBot() {
+            const input = document.getElementById('bot-input');
+            const val = input.value;
+            if(!val) return;
+            renderMsg(val, 'user');
+            input.value = "";
+            
+            let reply = "🤖 أنا حافظ أهدافك يا زوكش. حالياً دينك " + userData.currentDebt + "ج وهدفنا الـ 500 ألف في 2026. عايز تسأل عن إيه؟";
+            if(val.includes("حلم")) reply = "🤖 حلمك هو: سنترال كبير، مطعم وكافيه، ومكتب دليفري عالمي. أنا هنا عشان نصلهم!";
+            if(val.includes("بونص")) reply = "🤖 بونص الشهر ده: وفر 300ج كل أسبوع وهتخلص دينك قبل وقته بشهرين!";
+            
+            setTimeout(() => renderMsg(reply, 'bot'), 600);
+        }
+        function renderMsg(t, s) {
+            const m = document.getElementById('messages');
+            m.innerHTML += `<div style="text-align:${s==='user'?'left':'right'}; margin:5px; color:${s==='user'?'#aaa':'var(--gold)'}">${t}</div>`;
+            m.scrollTop = m.scrollHeight;
+        }
+        function addBotMsg(t) { renderMsg(t, 'bot'); }
 
-        window.onload = () => { save(); updateCountdown(); };
+        // --- الإعدادات ---
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+        function showSubMenu(id) { 
+            const el = document.getElementById(id + '-sub');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+        function showBigDream() {
+            alert("🌟 أحلام الزوكش:\n1. فتح سنترال متكامل\n2. مطعم وكافيه\n3. أبلكيشن دليفري ينافس الكبار");
+        }
+        function askNotificationPermission() {
+            if ("Notification" in window) {
+                Notification.requestPermission().then(p => {
+                    if(p === 'granted') alert("✅ تم تفعيل إشعارات الهاتف بنجاح");
+                });
+            }
+        }
+        function resetApp() { if(confirm("هل تريد تسجيل الخروج؟ سيتم مسح البيانات المؤقتة")) { localStorage.clear(); location.reload(); } }
+
+        // التشغيل
+        window.onload = () => {
+            updateUI();
+            addBotMsg("🤖 أهلاً بك يا زوكش! الميزانية جاهزة والعداد شغال.. يلا بينا!");
+        };
     </script>
 </body>
-                    </html>
-                    
+                                                </html>
+                                                
