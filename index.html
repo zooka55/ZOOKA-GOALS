@@ -18,11 +18,16 @@
         }
 
         /* القائمة الجانبية */
-        .sidebar {
-            position: fixed; top: 0; right: -100%; width: 280px; height: 100%;
-            background: var(--card-bg); z-index: 4000; transition: 0.4s;
-            padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.5); overflow-y: auto;
-        }
+        .<div id="side-goals-section" style="padding:10px; background:#1a1a1a; margin-top:10px; border-radius:10px;">
+    <h4 style="color:var(--gold); border-bottom:1px solid #333;">🎯 خريطة السنة</h4>
+    <div id="sidebar-goals-list" style="font-size:12px; max-height:200px; overflow-y:auto;">
+        <div>شهر 2: لاب توب لينوفو (15000ج)</div>
+        <div>شهر 3: طقمين وساعة</div>
+        <div>شهر 4: تليفون جديد (10000ج)</div>
+        <div style="color:#666">... باقي الشهور</div>
+    </div>
+</div>
+
         .sidebar.active { right: 0; }
         .sidebar h3 { color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; }
         .menu-item { padding: 12px 0; border-bottom: 1px solid #222; cursor: pointer; display: flex; align-items: center; gap: 10px; }
@@ -68,9 +73,28 @@
         .c-btn { height: 60px; background: #222; color: white; border-radius: 10px; font-size: 20px; display: flex; align-items: center; justify-content: center; }
 
         /* البوت الذكي */
-        .bot-bubble { position: fixed; bottom: 80px; left: 20px; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 25px; z-index: 3000; box-shadow: 0 5px 15px rgba(255,215,0,0.4); }
-        #chat-window { position: fixed; bottom: 150px; left: 20px; right: 20px; height: 350px; background: var(--card-bg); border-radius: 15px; display: none; flex-direction: column; border: 1px solid var(--gold); z-index: 3000; }
-        #messages { flex: 1; padding: 10px; overflow-y: auto; font-size: 13px; }
+        .function askBot() {
+    const input = document.getElementById('bot-input');
+    const val = input.value;
+    if(!val) return;
+    
+    renderMsg(val, 'user');
+    
+    let reply = "بص يا زوكش يا زميلي.. "; // بداية بورسعيدية
+    
+    if(val.includes("تعبت") || val.includes("مخنوق")) {
+        reply += "إخس عليك! ده إحنا بورسعيدية جبال متهزناش ريح. إسترجل كدة وإفتكر السنترال والمطعم، هانت يا وحش!";
+    } else if(val.includes("فلوس") || val.includes("الدين")) {
+        reply += `إنت عليك ${userData.currentDebt} جني.. قرّبنا نخلصهم ونبقى باشوات في بورسعيد، دوس بنزين!`;
+    } else if(val.includes("بونص")) {
+        reply += "البونص الأسبوع ده لوز اللوز، لو وفرت الـ 300 جنيه هتدعيلي في أخر الشهر.";
+    } else {
+        reply = "يا زوكش يا غالي، أنا معاك وقلبي عليك.. قول لي عايز إيه تانى يا بورسعيدي؟";
+    }
+
+    setTimeout(() => renderMsg(reply, 'bot'), 600);
+    input.value = "";
+}
 
         /* المودال للخيارات */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 6000; display: none; align-items: center; justify-content: center; }
